@@ -1,1 +1,3 @@
 # SMART-IV-DRIP-MONITOR
+
+The Smart IV Drip Monitoring System is a low-cost solution designed to prevent IV fluid depletion from going unnoticed in hospitals and home care. Using an Arduino Uno and a Force Sensitive Resistor (FSR), the system continuously monitors the weight of an IV bottle. As the bottle becomes empty, the pressure on the FSR reduces, changing the sensor value. The Arduino processes this data and activates a buzzer alert when the IV level is low, while an LED indicates normal operation when sufficient fluid is present. This simple, affordable system improves patient safety and reduces manual monitoring workload.
