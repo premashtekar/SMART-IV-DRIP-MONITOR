@@ -1,0 +1,96 @@
+// =====================================================================
+// FINAL SMART IV DRIP MONITOR CODE (NO MISTAKE VERSION)
+// Logic:
+//   - If FSR value is 0 to 300  → Buzzer ON (LED OFF)
+//   - If FSR value is above 300 → LED ON (Buzzer OFF)
+//
+// Wiring Summary:
+//   FSR: 5V → FSR → A0 → 10kΩ → GND
+//   Buzzer: Pin 8 (+) and GND (–)
+//   LED: Pin 9 → 220Ω resistor → LED (+), LED (–) → GND
+// =====================================================================
+
+const int fsrPin = A0;     // FSR connected to A0
+const int buzzerPin = 8;   // Buzzer positive leg
+const int ledPin = 9;      // LED positive leg through 220Ω
+
+// Settings
+const int THRESHOLD = 300;        // FSR threshold value
+const int SAMPLE_COUNT = 10;      // Samples to average for stable readings
+
+// Buzzer beep timing
+const int BUZZER_ON_MS = 300;
+const int BUZZER_OFF_MS = 300;
+
+
+// --------------------------------------------------
+// Function: Read FSR value with averaging
+// --------------------------------------------------
+int readFsrAvg() {
+  long sum = 0;
+  for (int i = 0; i < SAMPLE_COUNT; i++) {
+    sum += analogRead(fsrPin);
+    delay(5);
+  }
+  return sum / SAMPLE_COUNT;
+}
+
+
+// --------------------------------------------------
+// Setup
+// --------------------------------------------------
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(ledPin, OUTPUT);
+
+  digitalWrite(buzzerPin, LOW);
+  digitalWrite(ledPin, LOW);
+
+  Serial.println("=== FINAL SMART IV DRIP MONITOR STARTED ===");
+  Serial.print("Threshold set to: ");
+  Serial.println(THRESHOLD);
+  Serial.println("FSR → A0 | Buzzer → Pin 8 | LED → Pin 9");
+  Serial.println("============================================");
+}
+
+
+// --------------------------------------------------
+// Main Loop
+// --------------------------------------------------
+void loop() {
+
+  int fsrValue = readFsrAvg();
+
+  // Print the sensor value
+  Serial.print("FSR (avg) = ");
+  Serial.println(fsrValue);
+
+  // ------------------------------------------------
+  // CASE 1: Bottle Empty or Light → BUZZER ON
+  // ------------------------------------------------
+  if (fsrValue <= THRESHOLD) {
+
+    Serial.println("ALERT: BOTTLE EMPTY — BUZZER ON");
+
+    digitalWrite(ledPin, LOW);  // LED OFF
+    digitalWrite(buzzerPin, HIGH);
+    delay(BUZZER_ON_MS);
+
+    digitalWrite(buzzerPin, LOW);
+    delay(BUZZER_OFF_MS);
+  }
+
+  // ------------------------------------------------
+  // CASE 2: Bottle Heavy / Full → LED ON
+  // ------------------------------------------------
+  else {
+
+    Serial.println("STATUS: BOTTLE FULL — LED ON");
+
+    digitalWrite(buzzerPin, LOW);   // Buzzer OFF
+    digitalWrite(ledPin, HIGH);     // LED ON
+    delay(400);
+  }
+}
